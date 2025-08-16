@@ -14,14 +14,14 @@ def get_product_changes(scraped_products):
     new_ids = scraped_ids.difference(existing_ids)
     removed_ids = existing_ids.difference(scraped_ids)
     new_products = [product for product in scraped_products if product["id"] in new_ids]
-    removed_products = [product for product in existing_products if product["id"] in removed_ids]
+    # removed_products = [product for product in existing_products if product["id"] in removed_ids]
 
-    return new_products, removed_products
+    return new_products, removed_ids
 
-def commit_changes(new_products, removed_products):
+def commit_changes(new_products, removed_ids):
     with JSON_PATH.open("r") as products_json:
         existing_products = json.load(products_json)
-        modified_products = [product for product in existing_products if product["id"] not in removed_products]
+        modified_products = [product for product in existing_products if product["id"] not in removed_ids]
         modified_products.extend(new_products)
     
     with JSON_PATH.open("w") as products_json:

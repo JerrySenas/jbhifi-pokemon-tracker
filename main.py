@@ -8,7 +8,7 @@ def main():
     with open("tracker.log") as log_file:
         lines = log_file.readlines()
         if len(lines) == 0:
-            last_page == 100
+            last_page = 100
         else:
             last_page = int(lines[-1])
 
@@ -24,10 +24,10 @@ def main():
 
     logger.info("Tracker finished")
 
-    new_prods, removed_prods = get_product_changes(products)
+    new_prods, removed_ids = get_product_changes(products)
     logger.info(f"Found {len(new_prods)} new products!")
-    logger.info(f"{len(removed_prods)} products have been removed.")
-    commit_changes(new_prods, removed_prods)
+    logger.info(f"{len(removed_ids)} products have been removed.")
+    commit_changes(new_prods, removed_ids)
     logger.info(f"Changes commited.")
 
 
