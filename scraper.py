@@ -27,7 +27,10 @@ def get_products(pages: int):
                     "image": item["images"][0]["src"],
                     "page": i
                 })
-        logger.info(f"    Finished in: {'%.2f' % (time.time() - page_start_time)} s.\n")
+        time_taken = time.time() - page_start_time
+        if time_taken < 0.5:
+            time.sleep(0.5 - time_taken)
+        logger.info(f"    Finished in: {'%.2f' % (time_taken)} s.\n")
 
     logger.info(f"{len(poke_products)} products found.")
     logger.info(f"Scraping finished in: {'%.2f' % (time.time() - start_time)} s.")
