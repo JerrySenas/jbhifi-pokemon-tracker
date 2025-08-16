@@ -19,7 +19,7 @@ def get_products(pages: int):
 
         for item in data["products"]:
             if item["vendor"] == "POKEMON TCG":
-                logger.info(f"Found product: {item["title"]}")
+                logger.info(f"Found product: {item['title']}")
                 poke_products.append({
                     "id": item["id"],
                     "name": item["title"],
@@ -37,8 +37,8 @@ def get_products(pages: int):
 if __name__ == "__main__":
     start_time = time.time()
     raw_prods = get_products()
-    links = [f"https://www.jbhifi.com.au/products/{prod["handle"]}" for prod in raw_prods]
+    links = [f"https://www.jbhifi.com.au/products/{prod['handle']}" for prod in raw_prods]
 
     for link in links:
         print(link)
-    print(f"Time taken: {"%.2f" % (time.time() - start_time)} s.")
+    print(f"Time taken: {'%.2f' % (time.time() - start_time)} s.")
