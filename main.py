@@ -1,18 +1,20 @@
 from scraper import get_products
 from checker import get_product_changes, commit_changes
 import logging
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
+log_path = Path(__file__).parent / "tracker.log"
 
 def main():
-    with open("tracker.log") as log_file:
+    with open(log_path) as log_file:
         lines = log_file.readlines()
         try:
             last_page = int(lines[-1])
         except ValueError:
             last_page = 39
 
-    logging.basicConfig(filename="tracker.log",
+    logging.basicConfig(filename=log_path,
                         level=logging.INFO,
                         format="%(asctime)s %(message)s",
                         datefmt="%Y-%m-%d %I:%M:%S",
@@ -31,7 +33,7 @@ def main():
     logger.info(f"Changes commited.")
 
 
-    with open("tracker.log", mode="a") as log_file:
+    with open(log_path, mode="a") as log_file:
         log_file.write(new_last_page)
 
 if __name__ == "__main__":

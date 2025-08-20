@@ -39,7 +39,7 @@ def get_products(pages: int):
 
 if __name__ == "__main__":
     start_time = time.time()
-    raw_prods = get_products()
+    raw_prods = get_products(100)
     links = [f"https://www.jbhifi.com.au/products/{prod['handle']}" for prod in raw_prods]
 
     for link in links:
