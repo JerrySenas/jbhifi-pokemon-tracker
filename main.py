@@ -4,17 +4,27 @@ import logging
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
-log_path = Path(__file__).parent / "tracker.log"
+LOG_PATH = Path(__file__).parent / "tracker.log"
+JSON_PATH = Path(__file__).parent / "products.json"
 
 def main():
-    with open(log_path) as log_file:
-        lines = log_file.readlines()
-        try:
-            last_page = int(lines[-1])
-        except ValueError:
-            last_page = 39
+    if LOG_PATH.exists():
+        with open(LOG_PATH) as log_file:
+            lines = log_file.readlines()
+            try:
+                last_page = int(lines[-1])
+            except ValueError:
+                last_page = 100
+    else:
+        with open(LOG_PATH, "w") as log_file:
+            log_file.write("Log file init")
+            last_page = 100
 
-    logging.basicConfig(filename=log_path,
+    if not JSON_PATH.exists():
+        with open(JSON_PATH, "w") as json_file:
+            json_file.write("[]")
+
+    logging.basicConfig(filename=LOG_PATH,
                         level=logging.INFO,
                         format="%(asctime)s %(message)s",
                         datefmt="%Y-%m-%d %I:%M:%S",
@@ -33,7 +43,7 @@ def main():
     logger.info(f"Changes commited.")
 
 
-    with open(log_path, mode="a") as log_file:
+    with open(LOG_PATH, mode="a") as log_file:
         log_file.write(new_last_page)
 
 if __name__ == "__main__":
