@@ -1,5 +1,6 @@
 __pycache__
 .venv
+.env
 scrape-history
 jbhifi-tracker.pem
 tracker.log

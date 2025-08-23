@@ -1,5 +1,6 @@
 from scraper import get_products
 from checker import get_product_changes, commit_changes
+from notifier import send_discord_message
 import logging
 from pathlib import Path
 
@@ -38,9 +39,15 @@ def main():
 
     new_prods, removed_ids = get_product_changes(products)
     logger.info(f"Found {len(new_prods)} new products!")
-    logger.info(f"{len(removed_ids)} products have been removed.")
-    commit_changes(new_prods, removed_ids)
-    logger.info(f"Changes commited.")
+    logger.info(f"{len(removed_ids)} products have been marked for removal.")
+    if len(new_prods) > 0 or len(removed_ids) > 0:
+        removed_prods = commit_changes(new_prods, removed_ids)
+        logger.info(f"Changes commited.")
+        status_code = send_discord_message(new_prods, removed_prods)
+        if status_code == 200:
+            logger.info(f"Discord message sent successfully.")
+        else:
+            logger.info(f"Discord message failed to send.")
 
 
     with open(LOG_PATH, mode="a") as log_file:
