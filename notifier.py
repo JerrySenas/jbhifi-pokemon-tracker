@@ -13,9 +13,9 @@ def send_discord_message(new, removed):
     message_embeds = [
         {
             "title": product["name"],
-            "description": f"URL: {product["url"]}",
+            "description": f"URL: {product['url']}",
             "timestamp": datetime_now,
-            "image": {"url": product["image"]},
+            "image": {"url": product['image']},
             "color": 65280
         }
         for product in new
@@ -23,9 +23,9 @@ def send_discord_message(new, removed):
     message_embeds.extend([
         {
             "title": product["name"],
-            "description": f"URL: {product["url"]}",
+            "description": f"URL: {product['url']}",
             "timestamp": datetime_now,
-            "image": {"url": product["image"]},
+            "image": {"url": product['image']},
             "color": 16711680
         }
         for product in removed
