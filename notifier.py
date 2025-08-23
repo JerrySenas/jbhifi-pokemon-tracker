@@ -41,7 +41,7 @@ def send_discord_message(new, removed):
             "embeds": message_embeds
         }
     )
-    return r.status_code
+    return r
 
 if __name__ == "__main__":
     sample_new_prods = [

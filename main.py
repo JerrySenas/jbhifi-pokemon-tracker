@@ -43,11 +43,12 @@ def main():
     if len(new_prods) > 0 or len(removed_ids) > 0:
         removed_prods = commit_changes(new_prods, removed_ids)
         logger.info(f"Changes commited.")
-        status_code = send_discord_message(new_prods, removed_prods)
-        if status_code == 200:
+        r = send_discord_message(new_prods, removed_prods)
+        if r.status_code > 299:
             logger.info(f"Discord message sent successfully.")
         else:
             logger.info(f"Discord message failed to send.")
+            logger.info(r.text)
 
 
     with open(LOG_PATH, mode="a") as log_file:

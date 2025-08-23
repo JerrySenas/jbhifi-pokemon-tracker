@@ -22,7 +22,7 @@ def commit_changes(new_products, removed_ids):
     with JSON_PATH.open("r") as products_json:
         existing_products = json.load(products_json)
         modified_products = [product for product in existing_products if product["id"] not in removed_ids]
-        removed_products = [product for product in existing_products if product["id"] not in removed_ids]
+        removed_products = [product for product in existing_products if product["id"] in removed_ids]
         modified_products.extend(new_products)
     
     with JSON_PATH.open("w") as products_json:
