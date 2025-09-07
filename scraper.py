@@ -9,7 +9,7 @@ def get_products(pages: int):
     start_time = time.time()
     poke_products = []
 
-    for i in range(min(pages + 5, 100)):
+    for i in range(1, min(pages + 5, 100)):
         logger.info(f"Checking page {i}...")
         page_start_time = time.time()
         url = f"https://www.jbhifi.com.au/products.json?limit=250&page={i}"
