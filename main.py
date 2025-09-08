@@ -53,7 +53,7 @@ def init_json_file():
             json_file.write("[]")
 
 def main():
-    logger.info("=== Tracker started ===")
+    logger.info("\n=== Tracker started ===")
 
     init_json_file()
     last_page = load_last_page()
@@ -84,7 +84,7 @@ def main():
         except Exception as e:
             logger.exception(f"Error sending Discord message: {e}")
 
-    logger.info("=== Tracker finished ===")
+    logger.info("=== Tracker finished ===\n")
 
 if __name__ == "__main__":
     main()
