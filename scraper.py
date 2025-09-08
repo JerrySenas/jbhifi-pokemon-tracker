@@ -23,13 +23,12 @@ def get_products(pages: int):
                 poke_products.append({
                     "id": item["id"],
                     "name": item["title"],
-                    "url": "https://www.jbhifi.com.au/products/" + item["handle"],
+                    "url": BASE_URL + item["handle"],
                     "image": item["images"][0]["src"],
                     "page": i
                 })
         time_taken = time.time() - page_start_time
-        if time_taken < 0.5:
-            time.sleep(0.5 - time_taken)
+        time.sleep(0.5)
         logger.info(f"    Finished in: {'%.2f' % (time_taken)} s.\n")
 
     logger.info(f"{len(poke_products)} products found.")
@@ -39,8 +38,8 @@ def get_products(pages: int):
 
 if __name__ == "__main__":
     start_time = time.time()
-    raw_prods = get_products(100)
-    links = [f"https://www.jbhifi.com.au/products/{prod['handle']}" for prod in raw_prods]
+    raw_prods = get_products(10)
+    links = [f"{prod['url']}" for prod in raw_prods]
 
     for link in links:
         print(link)
