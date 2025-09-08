@@ -20,7 +20,6 @@ handler = TimedRotatingFileHandler(
 )
 
 logging.basicConfig(
-    filename=LOG_PATH,
     level=logging.INFO,
     format="%(asctime)s %(message)s",
     datefmt="%Y-%m-%d %I:%M:%S",
