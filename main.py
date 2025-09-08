@@ -1,5 +1,5 @@
 from scraper import get_products
-from checker import get_product_changes, commit_changes
+from checker import get_product_changes
 from notifier import send_discord_message
 import logging
 from pathlib import Path
@@ -41,7 +41,6 @@ def main():
     logger.info(f"Found {len(new_prods)} new products!")
     logger.info(f"{len(removed_prods)} products have been marked for removal.")
     if len(new_prods) > 0 or len(removed_prods) > 0:
-        commit_changes(new_prods, removed_prods)
         logger.info(f"Changes commited.")
         r = send_discord_message(new_prods, removed_prods)
         if r.status_code < 299:
