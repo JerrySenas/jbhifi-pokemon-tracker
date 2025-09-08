@@ -72,15 +72,6 @@ def main():
     logger.info(f"Found {len(new_prods)} new products!")
     logger.info(f"{len(removed_prods)} products have been removed.")
 
-    if len(new_prods) > 0 or len(removed_prods) > 0:
-        logger.info(f"Changes commited.")
-        r = send_discord_message(new_prods, removed_prods)
-        if r.status_code < 299:
-            logger.info(f"Discord message sent successfully.")
-        else:
-            logger.info(f"Discord message failed to send.")
-            logger.info(r.text)
-
     if new_prods or removed_prods:
         logger.info("Changes detected. Sending to Discord...")
         try:
