@@ -1,11 +1,7 @@
-import requests
-import os
-from dotenv import load_dotenv
 from datetime import datetime, timezone, timedelta
+import requests
 
-load_dotenv()
-
-DISCORD_WEBHOOK = os.environ.get("DISCORD_WEBHOOK")
+DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1407651931081543750/uTEZmxY-OyBkSXb7Lf-A9Ak3FSJ-Orn0z6abJKHeSK-f1QGwFZUs0_w16oLzKJmHopsp"
 TIMEZONE = timezone(timedelta(hours=10))
 
 def send_discord_message(new, removed):
