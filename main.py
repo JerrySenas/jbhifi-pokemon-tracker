@@ -61,7 +61,7 @@ def get_products():
             "image": p["product_image"],
             "is_displayed": p["availability"]["displayProduct"]
         }
-    for p in raw_products if p["availability"]["canBuyOnline"] or p["availability"]["canBuyOnline"]]
+    for p in raw_products if p["availability"]["canBuyOnline"] or p["availability"]["canPreOrder"]]
 
 
 def check_products(scraped_products):
