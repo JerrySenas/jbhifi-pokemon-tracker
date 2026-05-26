@@ -3,7 +3,7 @@ import json
 import logging
 from logging.handlers import TimedRotatingFileHandler
 import requests
-from notifier import send_discord_message
+from notifier import send_discord_message, send_display_change_message
 
 BASE_DIR = Path(__file__).parent
 LOG_PATH = BASE_DIR / "tracker.log"
@@ -40,10 +40,10 @@ ALGOLIA_REQUEST = {
         "indexName": "shopify_products",
         "params": (
             "query="
-            "&hitsPerPage=50"
+            "&hitsPerPage=100"
             "&responseFields=[\"hits\"]"
             "&filters=vendor:\"POKEMON TCG\""
-            "&attributesToRetrieve=[\"title\", \"handle\", \"product_image\"]"
+            "&attributesToRetrieve=[\"title\", \"handle\", \"product_image\", \"availability\"]"
             "&attributesToHighlight=[]"
             "&attributesToSnippet=[]"
         ),
@@ -58,9 +58,10 @@ def get_products():
             "objectID": p["objectID"],
             "name": p["title"],
             "url": JB_HIFI_URL + p["handle"],
-            "image": p["product_image"]
+            "image": p["product_image"],
+            "is_displayed": p["availability"]["displayProduct"]
         }
-    for p in raw_products]
+    for p in raw_products if p["availability"]["canBuyOnline"] or p["availability"]["canBuyOnline"]]
 
 
 def check_products(scraped_products):
@@ -82,6 +83,10 @@ def check_products(scraped_products):
 
     new_products = [scraped_map[i] for i in new_ids]
     removed_products = [existing_map[i] for i in removed_ids]
+
+    for product_id in existing_ids:
+        if not existing_map[product_id].get("is_displayed") and scraped_map[product_id].get("is_displayed"):
+            send_display_change_message(scraped_map[product_id])
 
     updated_products = [scraped_map[i] for i in scraped_ids]
 

@@ -9,7 +9,7 @@ def send_discord_message(new, removed):
     message_embeds = [
         {
             "title": product["name"],
-            "description": f"URL: {product['url']}",
+            "description": f"URL: {product['url']}\nPublished: {product['is_displayed']}",
             "timestamp": datetime_now,
             "image": {"url": product['image']},
             "color": 65280
@@ -31,6 +31,30 @@ def send_discord_message(new, removed):
         url=DISCORD_WEBHOOK,
         json={
             "content": f"<@&1407662797893926953> **{len(new)}** products have been added!\n**{len(removed)}** products have been removed!",
+            "allowed_mentions": {
+                "parse": ["roles"]
+            },
+            "embeds": message_embeds
+        }
+    )
+    return r
+
+def send_display_change_message(product):
+    datetime_now = datetime.now(tz=TIMEZONE).isoformat()
+    message_embeds = [
+        {
+            "title": product["name"],
+            "description": f"URL: {product['url']}",
+            "timestamp": datetime_now,
+            "image": {"url": product['image']},
+            "color": 65280
+        }
+    ]
+
+    r = requests.post(
+        url=DISCORD_WEBHOOK,
+        json={
+            "content": f"<@&1407662797893926953> A product has been published!",
             "allowed_mentions": {
                 "parse": ["roles"]
             },
