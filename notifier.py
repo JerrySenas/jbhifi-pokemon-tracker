@@ -4,61 +4,20 @@ import requests
 DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1407651931081543750/uTEZmxY-OyBkSXb7Lf-A9Ak3FSJ-Orn0z6abJKHeSK-f1QGwFZUs0_w16oLzKJmHopsp"
 TIMEZONE = timezone(timedelta(hours=10))
 
-def send_discord_message(new, removed):
+def send_discord_message(embeds, message):
     datetime_now = datetime.now(tz=TIMEZONE).isoformat()
-    message_embeds = [
-        {
-            "title": product["name"],
-            "description": f"URL: {product['url']}\nPublished: {product['is_displayed']}",
-            "timestamp": datetime_now,
-            "image": {"url": product['image']},
-            "color": 65280
-        }
-        for product in new
-    ]
-    message_embeds.extend([
-        {
-            "title": product["name"],
-            "description": f"URL: {product['url']}",
-            "timestamp": datetime_now,
-            "image": {"url": product['image']},
-            "color": 16711680
-        }
-        for product in removed
-    ])
+
+    for embed in embeds:
+        embed["timestamp"] = datetime_now
 
     r = requests.post(
         url=DISCORD_WEBHOOK,
         json={
-            "content": f"<@&1407662797893926953> **{len(new)}** products have been added!\n**{len(removed)}** products have been removed!",
+            "content": message,
             "allowed_mentions": {
                 "parse": ["roles"]
             },
-            "embeds": message_embeds
-        }
-    )
-    return r
-
-def send_display_change_message(product):
-    datetime_now = datetime.now(tz=TIMEZONE).isoformat()
-    message_embeds = [
-        {
-            "title": product["name"],
-            "description": f"URL: {product['url']}",
-            "timestamp": datetime_now,
-            "image": {"url": product['image']},
-            "color": 65280
-        }
-    ]
-
-    r = requests.post(
-        url=DISCORD_WEBHOOK,
-        json={
-            "content": f"<@&1407662797893926953> A product has been published!",
-            "allowed_mentions": {
-                "parse": ["roles"]
-            },
-            "embeds": message_embeds
+            "embeds": embeds
         }
     )
     return r

@@ -3,5 +3,6 @@ __pycache__
 .env
 scrape-history
 jbhifi-tracker.pem
-tracker.log
-products.json
+*.log
+*.log.*
+*.json

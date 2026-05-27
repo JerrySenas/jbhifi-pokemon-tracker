@@ -6,8 +6,8 @@ import requests
 from notifier import send_discord_message
 
 BASE_DIR = Path(__file__).parent
-LOG_PATH = BASE_DIR / "tracker.log"
-JSON_PATH = BASE_DIR / "products.json"
+LOG_PATH = BASE_DIR / "backend_tracker.log"
+JSON_PATH = BASE_DIR / "backend_products.json"
 
 handler = TimedRotatingFileHandler(
     LOG_PATH,
@@ -40,7 +40,7 @@ ALGOLIA_REQUEST = {
         "indexName": "shopify_products",
         "params": (
             "query="
-            "&hitsPerPage=100"
+            "&hitsPerPage=1000"
             "&responseFields=[\"hits\"]"
             "&filters=vendor:\"POKEMON TCG\""
             "&attributesToRetrieve=[\"title\", \"handle\", \"product_image\", \"availability\"]"
@@ -49,18 +49,6 @@ ALGOLIA_REQUEST = {
         ),
     }]
 }
-
-def get_products():
-    response = requests.post(ALGOLIA_URL, headers=ALGOLIA_HEADERS, json=ALGOLIA_REQUEST)
-    raw_products = response.json()["results"][0]["hits"]
-    return [
-        {
-            "objectID": p["objectID"],
-            "name": p["title"],
-            "url": JB_HIFI_URL + p["handle"],
-            "image": p["product_image"],
-        }
-    for p in raw_products if p["availability"]["canBuyOnline"] or p["availability"]["canPreOrder"]]
 
 def get_num_products():
     request = {
@@ -79,11 +67,55 @@ def get_num_products():
     return response.json()["results"][0]["nbHits"]
 
 
-def check_products(scraped_products):
+def get_all_products():
+    all_products = []
+    page = 0
+
+    while True:
+        params = (
+            "query="
+            "&hitsPerPage=1000"
+            f"&page={page}"
+            "&responseFields=[\"hits\", \"nbPages\"]"
+            "&filters=vendor:\"POKEMON TCG\""
+            "&attributesToRetrieve=[\"title\", \"handle\", \"product_image\"]"
+            "&attributesToHighlight=[]"
+            "&attributesToSnippet=[]"
+        )
+
+        request = {
+            "requests": [{
+                "indexName": "shopify_products",
+                "params": params
+            }]
+        }
+
+        response = requests.post(ALGOLIA_URL, headers=ALGOLIA_HEADERS, json=request).json()["results"][0]
+        raw_products = response["hits"]
+
+        all_products.extend([
+            {
+                "objectID": p["objectID"],
+                "name": p["title"],
+                "url": JB_HIFI_URL + p.get("handle") if p.get("handle") else "No URL",
+                "image": p.get("product_image") or "No Image"
+            }
+        for p in raw_products
+        ])
+
+        if page >= response["nbPages"] - 1:
+            break
+
+        page+= 1
+
+    return all_products
+
+
+def check_products(num, scraped_products):
     existing_products = []
     if JSON_PATH.exists():
         try:
-            existing_products = json.loads(JSON_PATH.read_text())
+            existing_products = json.loads(JSON_PATH.read_text())["products"]
         except json.JSONDecodeError:
             existing_products = []
 
@@ -94,18 +126,20 @@ def check_products(scraped_products):
     scraped_ids = set(scraped_map)
 
     new_ids = scraped_ids - existing_ids
-    removed_ids = existing_ids - scraped_ids
-
     new_products = [scraped_map[i] for i in new_ids]
-    removed_products = [existing_map[i] for i in removed_ids]
 
     updated_products = [scraped_map[i] for i in scraped_ids]
 
-    JSON_PATH.write_text(json.dumps(updated_products, indent=4))
+    new_json = {
+        "nbHits": num,
+        "products": updated_products
+    }
 
-    return new_products, removed_products
+    JSON_PATH.write_text(json.dumps(new_json, indent=4))
 
-def prepare_discord_embeds(new, removed):
+    return new_products
+
+def prepare_discord_embeds(new):
     embeds = []
 
     embeds.extend(
@@ -114,38 +148,40 @@ def prepare_discord_embeds(new, removed):
                 "title": product["name"],
                 "description": f"URL: {product['url']}\n",
                 "image": {"url": product['image']},
-                "color": 65280
+                "color": 3447003
             }
             for product in new
-        ]
-    )
-
-    embeds.extend(
-        [
-            {
-                "title": product["name"],
-                "description": f"URL: {product['url']}",
-                "image": {"url": product['image']},
-                "color": 16711680
-            }
-            for product in removed
         ]
     )
 
     return embeds
 
 def main():
-    products = get_products()
-    new_prods, removed_prods = check_products(products)
+    if JSON_PATH.exists():
+        try:
+            curr_num_products = json.loads(JSON_PATH.read_text())["nbHits"]
+        except json.JSONDecodeError:
+            curr_num_products = 0
+        except KeyError:
+            curr_num_products = 0
+    else:
+        curr_num_products = 0
+    
+    new_num_products = get_num_products()
+    if new_num_products == curr_num_products:
+        return
 
-    if new_prods or removed_prods:
+    products = get_all_products()
+    new_prods = check_products(new_num_products, products)
+
+    if new_prods:
         logger.info("Changes detected. Sending to Discord...")
-        logger.info("New products: %d, Removed products: %d", len(new_prods), len(removed_prods))
+        logger.info("New products: %d", len(new_prods))
 
-        embeds = prepare_discord_embeds(new_prods, removed_prods)
+        embeds = prepare_discord_embeds(new_prods)
         r = send_discord_message(
             embeds,
-            f"<@&1407662797893926953> **{len(new_prods)}** products have been added!\n**{len(removed_prods)}** products have been removed!"
+            f"<@&1407662797893926953> **{len(new_prods)}** products have been added to the backend."
         )
 
         if r.status_code < 300:
